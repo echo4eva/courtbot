@@ -1,6 +1,6 @@
-import hikari
-import os
-from dotenv import load_dotenv
+import hikari                   # discord bot library for python
+import os                       # used with dotenv
+from dotenv import load_dotenv  # used to hide vulnerable variables
 
 load_dotenv()
 
