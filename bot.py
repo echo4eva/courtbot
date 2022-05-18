@@ -1,13 +1,48 @@
 import hikari                   # discord bot library for python
+import lightbulb                # command handler for hikari
 import os                       # used with dotenv
 from dotenv import load_dotenv  # used to hide vulnerable variables
 
 load_dotenv()
 
-bot = hikari.GatewayBot(token= os.getenv("TOKEN"))
+bot = lightbulb.BotApp(
+    token= os.getenv("TOKEN"), 
+    default_enabled_guilds= (554036009088712705)
+)
 
+# Bot passive until event happens just using hikari
 @bot.listen(hikari.GuildMessageCreateEvent)
 async def print_message(event):
     print('USER: ', event.author, 'MSG: ', event.content, 'MSG ID: ', event.message_id)
+
+# Bot command using lightbulb
+@bot.command
+@lightbulb.command(name= 'ping', description= 'pong')
+@lightbulb.implements(lightbulb.SlashCommand)
+async def ping(ctx):
+    await ctx.respond('pong!')
+
+# Group commands using lightbulb
+@bot.command
+@lightbulb.command('group', 'this is a group')
+@lightbulb.implements(lightbulb.SlashCommandGroup)
+async def my_group(ctx):
+    pass
+
+# Sub command using lightbulb
+@my_group.child
+@lightbulb.command('subcommand', 'this is a subcommand')
+@lightbulb.implements(lightbulb.SlashSubCommand)
+async def subcommand(ctx):
+    await ctx.respond('pog')
+
+# Slash commands and options using lightbulb
+@bot.command
+@lightbulb.option('reason', 'why user go to court', type= str)
+@lightbulb.option('user', 'user to go to court against', type= str)
+@lightbulb.command('test', 'testing options')
+@lightbulb.implements(lightbulb.SlashCommand)
+async def court(ctx):
+    await ctx.respond(f"{ctx.options.user}, has been accused because, {ctx.options.reason}.")
 
 bot.run()
