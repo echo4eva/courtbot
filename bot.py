@@ -41,8 +41,11 @@ async def accuse(ctx: lightbulb.PrefixContext):
     print(mentioned_user)
     print(reason)
 
-    await ctx.respond(f'The ID of the mentioned user: {mentioned_user}\
-        \nThe reason being accused: "{reason}"')
+    await ctx.respond(f'The ID of the mentioned user: **{mentioned_user}**\
+        \nThe reason being accused: **{reason}**')
+
+    await ctx.respond(f'Please provide evidence of a screenshot')
+    
     
 # Bot passive until event happens just using hikari
 @bot.listen(hikari.GuildMessageCreateEvent)
