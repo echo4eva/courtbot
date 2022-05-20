@@ -1,3 +1,4 @@
+import asyncio
 import hikari                   # discord bot library for python
 import lightbulb                # command handler for hikari
 import os                       # used with dotenv
@@ -21,6 +22,7 @@ bot = lightbulb.BotApp(
 @lightbulb.command(name="court", description="Go to court with someone")
 @lightbulb.implements(lightbulb.PrefixCommand)
 async def accuse(ctx: lightbulb.PrefixContext):
+    command_author = ctx.event.author
     # Get the command length
     command_length = len("~court") + 1
     # Get the whole content of the message
@@ -37,14 +39,37 @@ async def accuse(ctx: lightbulb.PrefixContext):
     mentioned_user = mentioned_user[2: len(mentioned_user) - 1]
 
     # Debugging purposes
-    print(msg)
-    print(mentioned_user)
-    print(reason)
+    # print(msg)
+    # print(mentioned_user)
+    # print(reason)
+    print(command_author)
 
     await ctx.respond(f'The ID of the mentioned user: **{mentioned_user}**\
         \nThe reason being accused: **{reason}**')
 
     await ctx.respond(f'Please provide evidence of a screenshot')
+
+    try:
+        # Waits for a response or message from the user.
+        response_event = await ctx.app.wait_for(
+            hikari.GuildMessageCreateEvent, 
+            timeout= 30, 
+            predicate= lambda x: x.message.author == command_author
+            )
+
+        # Code stole from `def evidence`
+        attachment = response_event.message.attachments
+        if len(attachment) == 0:
+            await ctx.respond("There's no attatchment!")
+        else:
+            attachment_string = str(attachment)
+            extracted_url = attachment_string.partition("url=")[2].split(",")[0].replace("'", "")
+            await ctx.respond(extracted_url)
+    except asyncio.TimeoutError:
+        await ctx.respond("Something went wrong")
+
+
+
 
 @bot.command
 @lightbulb.command(name="evidence", description="Adds evidence to the court")
